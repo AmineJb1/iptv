@@ -234,13 +234,18 @@ fun App() {
         }
     }
 }
-
 @Composable
 fun Player(url: String) {
     val ctx = LocalContext.current
-    val player = remember(url) 
-        ExoPlayer.Builder(ctx).build().apply { setMediaItem(MediaItem.fromUri(url)); prepare(); playWhenReady = true }
+    val player = remember { ExoPlayer.Builder(ctx).build() }
+    LaunchedEffect(url) {
+        player.setMediaItem(MediaItem.fromUri(url))
+        player.prepare()
+        player.playWhenReady = true
     }
-    DisposableEffect(player) { onDispose { player.release() } }
-    AndroidView(factory = { PlayerView(it).apply { this.player = player; keepScreenOn = true } }, modifier = Modifier.fillMaxSize())
+    DisposableEffect(Unit) { onDispose { player.release() } }
+    AndroidView(
+        factory = { PlayerView(it).apply { this.player = player; keepScreenOn = true } },
+        modifier = Modifier.fillMaxSize()
+    )
 }
