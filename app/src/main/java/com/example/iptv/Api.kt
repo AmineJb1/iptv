@@ -39,9 +39,19 @@ fun parseM3u(text: String): List<Channel> {
 }
 
 class Xtream(server: String, private val user: String, private val pass: String) {
-    private val base = fixUrl(server).trimEnd('/')
-    private val api = "$base/player_api.php?username=${enc(user)}&password=${enc(pass)}"
-    private val auth = "${enc(user)}/${enc(pass)}"
+        private fun load(catAction: String, listAction: String, build: (JSONObject, String) -> Channel): List<Channel> {
+        val cats = LinkedHashMap<String, String>()
+        val ca = JSONArray(httpGet("$api&action=$catAction"))
+        for (i in 0 until ca.length()) ca.getJSONObject(i).let { cats[it.optString("category_id")] = it.optString("category_name") }
+        val idx = cats.keys.withIndex().associate { it.value to it.index }
+        val a = JSONArray(httpGet("$api&action=$listAction"))
+        val items = List(a.length()) { i ->
+            val o = a.getJSONObject(i)
+            val id = o.optString("category_id")
+            (idx[id] ?: Int.MAX_VALUE) to build(o, cats[id] ?: "")
+        }
+        return items.sortedBy { it.first }.map { it.second }
+    }
 
     private fun load(catAction: String, listAction: String, build: (JSONObject, String) -> Channel): List<Channel> {
         val cats = HashMap<String, String>()
