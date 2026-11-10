@@ -34,7 +34,7 @@ fun ItemList(
     list: List<Channel>, group: String?, query: String,
     onGroup: (String) -> Unit, onPick: (Channel) -> Unit, modifier: Modifier = Modifier
 ) {
-    val groups = remember(list) { list.groupBy { it.group.ifBlank { "Autres" } }.toSortedMap() }
+    val groups = remember(list) { list.groupBy { it.group.ifBlank { "Autres" } } }
     val found = remember(list, query) {
         if (query.isBlank()) emptyList() else list.filter { it.name.contains(query, true) }
     }
