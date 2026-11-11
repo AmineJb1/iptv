@@ -22,7 +22,7 @@ import java.io.File
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent { MaterialTheme(colorScheme = Brand) { Surface(Modifier.fillMaxSize()) { App() } } }
+                setContent { AfricaTheme { App() } } }
     }
 }
 
