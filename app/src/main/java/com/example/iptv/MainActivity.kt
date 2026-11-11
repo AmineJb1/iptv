@@ -22,16 +22,9 @@ import java.io.File
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-                setContent { AfricaTheme { App() } } }
+        setContent { AfricaTheme { App() } }
     }
 }
-
-val Brand = darkColorScheme(
-    primary = Color(0xFFFFB300), onPrimary = Color.Black,
-    background = Color(0xFF0E1117), surface = Color(0xFF0E1117), onSurface = Color(0xFFEDEDED),
-    surfaceVariant = Color(0xFF1C222B), onSurfaceVariant = Color(0xFFA9B1BD),
-    primaryContainer = Color(0xFF4A3800), onPrimaryContainer = Color.White
-)
 
 fun randomMac(): String = "00:1A:79:" + List(3) { "%02X".format((0..255).random()) }.joinToString(":")
 
@@ -160,7 +153,7 @@ fun App() {
             }
         } else {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text("Media+ Afrique", Modifier.weight(1f), style = MaterialTheme.typography.titleLarge,
+                Text("Media+ Afrique", Modifier.weight(1f), style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                 OutlinedButton({ showLogin = true }) { Text("Compte") }
             }
