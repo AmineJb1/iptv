@@ -160,4 +160,22 @@ fun App() {
             }
         } else {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("Media+ Afrique", Modifier.weight(1f
+                                Text("Media+ Afrique", Modifier.weight(1f), style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                OutlinedButton({ showLogin = true }) { Text("Compte") }
+            }
+            if (status.isNotEmpty()) Text(status, style = MaterialTheme.typography.bodySmall)
+            Row(Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                listOf("Direct", "Films", "Séries").forEachIndexed { i, t ->
+                    if (section == i) Button({ pickSection(i) }, Modifier.weight(1f)) { Text(t) }
+                    else OutlinedButton({ pickSection(i) }, Modifier.weight(1f)) { Text(t) }
+                }
+            }
+            if (group != null) TextButton({ group = null }) { Text("‹ $group") }
+            else Text("Bouquets", Modifier.padding(top = 8.dp), style = MaterialTheme.typography.titleSmall)
+            OutlinedTextField(query, { query = it }, Modifier.fillMaxWidth().padding(vertical = 8.dp), singleLine = true,
+                label = { Text("Rechercher") })
+            ItemList(current, group, query, { group = it }, { pick(it) }, Modifier.weight(1f))
+        }
+    }
+}
