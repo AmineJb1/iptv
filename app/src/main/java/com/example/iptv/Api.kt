@@ -11,7 +11,7 @@ object Config {
     const val PORTAL = "http://vpn.mediafrique.xyz/c/"
 }
 
-data class Channel(val name: String, val group: String, val url: String)
+data class Channel(val name: String, val group: String, val url: String, val logo: String = "")
 
 fun enc(s: String): String = URLEncoder.encode(s, "UTF-8")
 fun fixUrl(u: String): String = u.trim().let { if (it.startsWith("http")) it else "http://$it" }
@@ -25,14 +25,15 @@ fun httpGet(url: String, headers: Map<String, String> = emptyMap()): String {
 
 fun parseM3u(text: String): List<Channel> {
     val out = ArrayList<Channel>()
-    var name = ""; var group = ""
+    var name = ""; var group = ""; var logo = ""
     for (raw in text.lineSequence()) {
         val l = raw.trim()
         if (l.startsWith("#EXTINF")) {
             name = l.substringAfterLast(',', "").trim()
             group = Regex("group-title=\"([^\"]*)\"").find(l)?.groupValues?.get(1) ?: ""
+            logo = Regex("tvg-logo=\"([^\"]*)\"").find(l)?.groupValues?.get(1) ?: ""
         } else if (l.isNotEmpty() && !l.startsWith("#")) {
-            out.add(Channel(name.ifEmpty { l }, group, l)); name = ""; group = ""
+            out.add(Channel(name.ifEmpty { l }, group, l, logo)); name = ""; group = ""; logo = ""
         }
     }
     return out
@@ -58,16 +59,16 @@ class Xtream(server: String, private val user: String, private val pass: String)
     }
 
     fun live() = load("get_live_categories", "get_live_streams") { o, g ->
-        Channel(o.optString("name"), g, "$base/live/$auth/${o.optString("stream_id")}.m3u8")
+        Channel(o.optString("name"), g, "$base/live/$auth/${o.optString("stream_id")}.m3u8", o.optString("stream_icon"))
     }
 
     fun movies() = load("get_vod_categories", "get_vod_streams") { o, g ->
         val ext = o.optString("container_extension").ifEmpty { "mp4" }
-        Channel(o.optString("name"), g, "$base/movie/$auth/${o.optString("stream_id")}.$ext")
+        Channel(o.optString("name"), g, "$base/movie/$auth/${o.optString("stream_id")}.$ext", o.optString("stream_icon"))
     }
 
     fun series() = load("get_series_categories", "get_series") { o, g ->
-        Channel(o.optString("name"), g, o.optString("series_id"))
+        Channel(o.optString("name"), g, o.optString("series_id"), o.optString("cover"))
     }
 
     fun episodes(seriesId: String): List<Channel> {
@@ -80,7 +81,8 @@ class Xtream(server: String, private val user: String, private val pass: String)
                 val e = arr.getJSONObject(i)
                 val ext = e.optString("container_extension").ifEmpty { "mp4" }
                 val n = e.optString("episode_num").padStart(2, '0')
-                out.add(Channel("E$n ${e.optString("title")}", "Saison $s", "$base/series/$auth/${e.optString("id")}.$ext"))
+                val img = e.optJSONObject("info")?.optString("movie_image") ?: ""
+                out.add(Channel("E$n ${e.optString("title")}", "Saison $s", "$base/series/$auth/${e.optString("id")}.$ext", img))
             }
         }
         return out
@@ -115,7 +117,7 @@ class Stalker(portal: String, val mac: String) {
         val d = js("type=itv&action=get_all_channels").getJSONArray("data")
         return List(d.length()) { i ->
             val o = d.getJSONObject(i)
-            Channel(o.optString("name"), g[o.optString("tv_genre_id")] ?: "", o.optString("cmd"))
+            Channel(o.optString("name"), g[o.optString("tv_genre_id")] ?: "", o.optString("cmd"), o.optString("logo"))
         }
     }
     fun resolve(cmd: String): String {
