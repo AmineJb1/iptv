@@ -4,16 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -128,47 +120,9 @@ fun App() {
         else -> episodes ?: series ?: emptyList()
     }
 
-    Column(Modifier.fillMaxSize().padding(16.dp)) {
-        if (showLogin) {
-            Text("Media+ Afrique", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(vertical = 12.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                listOf("M3U", "Identifiants", "Adresse MAC").forEachIndexed { i, t ->
-                    if (mode == i) Button({ mode = i }) { Text(t) } else OutlinedButton({ mode = i }) { Text(t) }
-                }
-            }
-            val f = Modifier.fillMaxWidth().padding(top = 8.dp)
-            when (mode) {
-                0 -> OutlinedTextField(m3u, { m3u = it }, f, singleLine = true, label = { Text("URL de la playlist M3U") })
-                1 -> {
-                    OutlinedTextField(user, { user = it }, f, singleLine = true, label = { Text("Nom d'utilisateur") })
-                    OutlinedTextField(pass, { pass = it }, f, singleLine = true, label = { Text("Mot de passe") },
-                        visualTransformation = PasswordVisualTransformation())
-                }
-                else -> OutlinedTextField(mac, { mac = it }, f, singleLine = true, label = { Text("Adresse MAC (à donner à votre fournisseur)") })
-            }
-            Row(Modifier.padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                Button({ connect() }) { Text("Se connecter") }
-                Spacer(Modifier.width(12.dp)); Text(status)
-            }
-        } else {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("Media+ Afrique", Modifier.weight(1f), style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-                OutlinedButton({ showLogin = true }) { Text("Compte") }
-            }
-            if (status.isNotEmpty()) Text(status, style = MaterialTheme.typography.bodySmall)
-            Row(Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                listOf("Direct", "Films", "Séries").forEachIndexed { i, t ->
-                    if (section == i) Button({ pickSection(i) }, Modifier.weight(1f)) { Text(t) }
-                    else OutlinedButton({ pickSection(i) }, Modifier.weight(1f)) { Text(t) }
-                }
-            }
-            if (group != null) TextButton({ group = null }) { Text("‹ $group") }
-            else Text("Bouquets", Modifier.padding(top = 8.dp), style = MaterialTheme.typography.titleSmall)
-            OutlinedTextField(query, { query = it }, Modifier.fillMaxWidth().padding(vertical = 8.dp), singleLine = true,
-                label = { Text("Rechercher") })
-            ItemList(current, group, query, { group = it }, { pick(it) }, Modifier.weight(1f))
-        }
-    }
+    MainUi(
+        showLogin, mode, { mode = it }, m3u, { m3u = it }, user, { user = it }, pass, { pass = it }, mac, { mac = it },
+        status, { connect() }, { showLogin = true }, section, { pickSection(it) }, group, { group = it },
+        query, { query = it }, current, { pick(it) }
+    )
 }
