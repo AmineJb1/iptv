@@ -4,7 +4,7 @@
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
     <uses-feature android:name="android.software.leanback" android:required="false" />
     <application
-        android:label="IPTV Rapide"
+        android:label="Media+ Afrique"
         android:icon="@android:drawable/ic_media_play"
         android:banner="@android:drawable/ic_media_play"
         android:usesCleartextTraffic="true"
