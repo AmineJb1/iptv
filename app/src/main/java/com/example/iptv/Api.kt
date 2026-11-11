@@ -39,7 +39,11 @@ fun parseM3u(text: String): List<Channel> {
 }
 
 class Xtream(server: String, private val user: String, private val pass: String) {
-        private fun load(catAction: String, listAction: String, build: (JSONObject, String) -> Channel): List<Channel> {
+    private val base = fixUrl(server).trimEnd('/')
+    private val api = "$base/player_api.php?username=${enc(user)}&password=${enc(pass)}"
+    private val auth = "${enc(user)}/${enc(pass)}"
+
+    private fun load(catAction: String, listAction: String, build: (JSONObject, String) -> Channel): List<Channel> {
         val cats = LinkedHashMap<String, String>()
         val ca = JSONArray(httpGet("$api&action=$catAction"))
         for (i in 0 until ca.length()) ca.getJSONObject(i).let { cats[it.optString("category_id")] = it.optString("category_name") }
@@ -51,17 +55,6 @@ class Xtream(server: String, private val user: String, private val pass: String)
             (idx[id] ?: Int.MAX_VALUE) to build(o, cats[id] ?: "")
         }
         return items.sortedBy { it.first }.map { it.second }
-    }
-
-    private fun load(catAction: String, listAction: String, build: (JSONObject, String) -> Channel): List<Channel> {
-        val cats = HashMap<String, String>()
-        val ca = JSONArray(httpGet("$api&action=$catAction"))
-        for (i in 0 until ca.length()) ca.getJSONObject(i).let { cats[it.optString("category_id")] = it.optString("category_name") }
-        val a = JSONArray(httpGet("$api&action=$listAction"))
-        return List(a.length()) { i ->
-            val o = a.getJSONObject(i)
-            build(o, cats[o.optString("category_id")] ?: "")
-        }
     }
 
     fun live() = load("get_live_categories", "get_live_streams") { o, g ->
