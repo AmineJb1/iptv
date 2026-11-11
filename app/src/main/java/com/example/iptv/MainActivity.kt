@@ -9,6 +9,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -20,9 +22,16 @@ import java.io.File
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent { MaterialTheme(colorScheme = darkColorScheme()) { Surface(Modifier.fillMaxSize()) { App() } } }
+        setContent { MaterialTheme(colorScheme = Brand) { Surface(Modifier.fillMaxSize()) { App() } } }
     }
 }
+
+val Brand = darkColorScheme(
+    primary = Color(0xFFFFB300), onPrimary = Color.Black,
+    background = Color(0xFF0E1117), surface = Color(0xFF0E1117), onSurface = Color(0xFFEDEDED),
+    surfaceVariant = Color(0xFF1C222B), onSurfaceVariant = Color(0xFFA9B1BD),
+    primaryContainer = Color(0xFF4A3800), onPrimaryContainer = Color.White
+)
 
 fun randomMac(): String = "00:1A:79:" + List(3) { "%02X".format((0..255).random()) }.joinToString(":")
 
@@ -69,7 +78,7 @@ fun App() {
                         1 -> xt().live()
                         else -> Stalker(Config.PORTAL, mac.trim().uppercase()).also { stalker = it }.channels()
                     }
-                    cache.writeText(l.joinToString("\n") { "${it.name}\t${it.group}\t${it.url}" })
+                    cache.writeText(l.joinToString("\n") { "${it.name}\t${it.group}\t${it.url}\t${it.logo}" })
                     l
                 }
                 channels = list; movies = null; series = null; episodes = null
@@ -102,7 +111,7 @@ fun App() {
     LaunchedEffect(Unit) {
         if (cache.exists()) {
             channels = withContext(Dispatchers.IO) {
-                cache.readLines().mapNotNull { l -> l.split("\t").takeIf { it.size == 3 }?.let { Channel(it[0], it[1], it[2]) } }
+                cache.readLines().mapNotNull { l -> l.split("\t").takeIf { it.size >= 3 }?.let { Channel(it[0], it[1], it[2], it.getOrElse(3) { "" }) } }
             }
             if (mode == 2 && stalker == null) stalker = Stalker(Config.PORTAL, mac.trim().uppercase())
             if (channels.isNotEmpty()) { showLogin = false; status = "${channels.size} chaînes (cache)" }
@@ -128,6 +137,8 @@ fun App() {
 
     Column(Modifier.fillMaxSize().padding(16.dp)) {
         if (showLogin) {
+            Text("Media+ Afrique", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(vertical = 12.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 listOf("M3U", "Identifiants", "Adresse MAC").forEachIndexed { i, t ->
                     if (mode == i) Button({ mode = i }) { Text(t) } else OutlinedButton({ mode = i }) { Text(t) }
@@ -149,18 +160,4 @@ fun App() {
             }
         } else {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                OutlinedButton({ showLogin = true }) { Text("Compte") }
-                Spacer(Modifier.width(12.dp)); Text(status)
-            }
-            Row(Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                listOf("Direct", "Films", "Séries").forEachIndexed { i, t ->
-                    if (section == i) Button({ pickSection(i) }) { Text(t) } else OutlinedButton({ pickSection(i) }) { Text(t) }
-                }
-            }
-            Text(group ?: "Bouquets", Modifier.padding(top = 8.dp), style = MaterialTheme.typography.titleSmall)
-            OutlinedTextField(query, { query = it }, Modifier.fillMaxWidth().padding(vertical = 8.dp), singleLine = true,
-                label = { Text("Rechercher") })
-            ItemList(current, group, query, { group = it }, { pick(it) }, Modifier.weight(1f))
-        }
-    }
-}
+                Text("Media+ Afrique", Modifier.weight(1f
