@@ -77,4 +77,29 @@ fun ItemList(
     }
     LazyColumn(modifier) {
         if (query.isNotBlank()) {
-            itemsIndexed(found, key = { i, c -> "$i${c.url}" }) { _, c -> ItemRow(c.name, c.group,
+                        itemsIndexed(found, key = { i, c -> "$i${c.url}" }) { _, c -> ItemRow(c.name, c.group, c.logo) { onPick(c) } }
+        } else if (group == null) {
+            val gl = groups.entries.toList()
+            itemsIndexed(gl, key = { _, e -> e.key }) { _, e -> ItemRow(e.key, "${e.value.size}", "") { onGroup(e.key) } }
+        } else {
+            val l = groups[group] ?: emptyList()
+            itemsIndexed(l, key = { i, c -> "$i${c.url}" }) { _, c -> ItemRow(c.name, "", c.logo) { onPick(c) } }
+        }
+    }
+}
+
+@Composable
+fun Player(url: String) {
+    val ctx = LocalContext.current
+    val player = remember { ExoPlayer.Builder(ctx).build() }
+    LaunchedEffect(url) {
+        player.setMediaItem(MediaItem.fromUri(url))
+        player.prepare()
+        player.playWhenReady = true
+    }
+    DisposableEffect(Unit) { onDispose { player.release() } }
+    AndroidView(
+        factory = { PlayerView(it).apply { this.player = player; keepScreenOn = true } },
+        modifier = Modifier.fillMaxSize()
+    )
+}
