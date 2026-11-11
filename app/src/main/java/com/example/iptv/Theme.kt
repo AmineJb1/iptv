@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.lightColorScheme
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -19,11 +19,11 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 
-val Light = lightColorScheme(
-    primary = Color(0xFFD97706), onPrimary = Color.White,
-    primaryContainer = Color(0xFFFFE3B3), onPrimaryContainer = Color(0xFF3B2300),
-    background = Color.White, surface = Color.White, onSurface = Color(0xFF1B1B1B),
-    surfaceVariant = Color(0xEEFFFFFF), onSurfaceVariant = Color(0xFF5F6368)
+val Cinema = darkColorScheme(
+    primary = Color(0xFFE11D48), onPrimary = Color.White,
+    primaryContainer = Color(0xFF3A0A14), onPrimaryContainer = Color.White,
+    background = Color(0xFF0B0B0F), surface = Color(0xFF0B0B0F), onSurface = Color.White,
+    surfaceVariant = Color(0xFF17171F), onSurfaceVariant = Color(0xFF9AA0AA)
 )
 
 fun loadBackground(ctx: Context): ImageBitmap? = try {
@@ -39,11 +39,11 @@ fun loadBackground(ctx: Context): ImageBitmap? = try {
 fun AfricaTheme(content: @Composable () -> Unit) {
     val ctx = LocalContext.current
     val bg = remember { loadBackground(ctx) }
-    MaterialTheme(colorScheme = Light) {
-        Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.White, Color(0xFFFFF3DC))))) {
+    MaterialTheme(colorScheme = Cinema) {
+        Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color(0xFF16161F), Color(0xFF050507))))) {
             if (bg != null) {
                 Image(bg, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
-                Box(Modifier.fillMaxSize().background(Color.White.copy(alpha = 0.5f)))
+                Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.72f)))
             }
             Surface(Modifier.fillMaxSize(), color = Color.Transparent) { content() }
         }
